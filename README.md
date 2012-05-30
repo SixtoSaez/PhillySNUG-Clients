@@ -1,7 +1,7 @@
 PhillySNUG-Clients
 ==================
 
-Code for the client-side of the demo code
+Code for the client-side of the demo
 
 There are two projects in this solution. The RealWorld.ApiClient is a client at "Level 2" of the Richardson REST Maturity model. It is what is "generally" accepted as a RESTful application. Since the version of the API that it communicates with is not strictly speaking, a RESTful API, then it is also not a true RESTful application.
 
