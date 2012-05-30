@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
@@ -26,18 +25,24 @@ namespace RealWorld.RestClient
                 Prompt("Start rest process>>");
 
                 var apiClient = new HttpClient();
-                var url = "http://localhost:36134/rest/loginWithLinks";
-                //var url = "http://phillysnug.apphb.com/rest/loginWithLinks";
+                //var url = "http://localhost:36134/rest/loginWithLinks";
+                var url = "http://phillysnug.apphb.com/rest/loginWithLinks";
 
                 var responseTask = GetResponseTask(apiClient, url, "GET", null);
                 responseTask.Wait();
 
                 //Get the links for the service:
                 var startResults = DeserializeJsonAs<Credentials>(responseTask);
-                var links = startResults.Links.ToDictionary<AppLink, string>(item => item.Rel);
+                var links = startResults.Links.ToDictionary(item => item.Rel);
 
                 //Login to API
-                responseTask = GetResponseTask(apiClient, links["SignIn"].Href, "POST", SetupClientCredentials());
+                var signinLink = links["SignIn"];
+                responseTask = GetResponseTask(
+                    apiClient,
+                    signinLink.Href,
+                    signinLink.Method,
+                    SetupClientCredentials());
+
                 responseTask.Wait();
 
                 var responseCredentials = DeserializeJsonAs<Credentials>(responseTask);
@@ -45,8 +50,14 @@ namespace RealWorld.RestClient
                 if (responseCredentials.Password.StartsWith("IsSignedIn"))
                 {
                     //Signed in successfully. Trigger SomeProcess:
-                    links = responseCredentials.Links.ToDictionary<AppLink, string>(item => item.Rel);
-                    responseTask = GetResponseTask(apiClient, links["TriggerSomeProcess"].Href, "GET", null);
+                    links = responseCredentials.Links.ToDictionary(item => item.Rel);
+                    var triggerSomeProcessLink = links["TriggerSomeProcess"];
+                    responseTask = GetResponseTask(
+                        apiClient,
+                        triggerSomeProcessLink.Href,
+                        triggerSomeProcessLink.Method,
+                        null);
+
                     responseTask.Wait();
 
                     //Do something based on the status of SomeProcess:
