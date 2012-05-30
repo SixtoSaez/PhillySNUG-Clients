@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Formatting;
@@ -25,18 +26,18 @@ namespace RealWorld.RestClient
                 Prompt("Start rest process>>");
 
                 var apiClient = new HttpClient();
-                //var url = "http://localhost:36134/rest/loginWithLinks";
-                var url = "http://phillysnug.apphb.com/api/loginWithLinks";
+                var url = "http://localhost:36134/rest/loginWithLinks";
+                //var url = "http://phillysnug.apphb.com/rest/loginWithLinks";
 
                 var responseTask = GetResponseTask(apiClient, url, "GET", null);
                 responseTask.Wait();
 
                 //Get the links for the service:
                 var startResults = DeserializeJsonAs<Credentials>(responseTask);
-                var links = new List<AppLink>(startResults.Links);
+                var links = startResults.Links.ToDictionary<AppLink, string>(item => item.Rel);
 
                 //Login to API
-                responseTask = GetResponseTask(apiClient, links[0].Href, "POST", SetupClientCredentials());
+                responseTask = GetResponseTask(apiClient, links["SignIn"].Href, "POST", SetupClientCredentials());
                 responseTask.Wait();
 
                 var responseCredentials = DeserializeJsonAs<Credentials>(responseTask);
@@ -44,9 +45,8 @@ namespace RealWorld.RestClient
                 if (responseCredentials.Password.StartsWith("IsSignedIn"))
                 {
                     //Signed in successfully. Trigger SomeProcess:
-                    //TODO: convert to reading from link:
-                    url = "http://phillysnug.apphb.com/api/someprocess";
-                    responseTask = GetResponseTask(apiClient, url, "GET", null);
+                    links = responseCredentials.Links.ToDictionary<AppLink, string>(item => item.Rel);
+                    responseTask = GetResponseTask(apiClient, links["TriggerSomeProcess"].Href, "GET", null);
                     responseTask.Wait();
 
                     //Do something based on the status of SomeProcess:
@@ -55,7 +55,7 @@ namespace RealWorld.RestClient
 
                     foreach (var detail in someProcessResult.ProcessingDetails)
                     {
-                        Console.WriteLine("   Processing detail: " + detail);
+                        Console.WriteLine(string.Format("  {0}: {1}", detail.Description, detail.Href));
                     }
                 }
 

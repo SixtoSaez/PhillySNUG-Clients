@@ -5,6 +5,6 @@ namespace RealWorld.RestClient.Models
     public class BizProcessStatus
     {
         public string Status { get; set; }
-        public IEnumerable<string> ProcessingDetails { get; set; }
+        public IEnumerable<AppLink> ProcessingDetails { get; set; }
     }
 }
