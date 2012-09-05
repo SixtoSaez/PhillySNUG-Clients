@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using RealWorld.RestClient.Models;
 
@@ -119,12 +118,9 @@ namespace RealWorld.RestClient
 
         public static ObjectContent CreateJsonObjectContent<T>(T model)
         {
-            var requestMessage = new HttpRequestMessage();
-            return requestMessage.CreateContent(
+            return new ObjectContent<T>(
                 model,
-                MediaTypeHeaderValue.Parse("application/json"),
-                new MediaTypeFormatter[] { new JsonMediaTypeFormatter() },
-                new FormatterSelector());
+                new JsonMediaTypeFormatter());
         }
 
         private static ObjectContent SetupClientCredentials()

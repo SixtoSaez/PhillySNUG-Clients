@@ -32,6 +32,7 @@
 *.vspscc
 .builds
 *.dotCover
+*.ncrunch*
 
 ## NuGet Package Restore enabled:
 packages/

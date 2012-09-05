@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Formatting;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using RealWorld.ApiClient.Models;
 
@@ -25,6 +24,7 @@ namespace RealWorld.ApiClient
                 Prompt("Start process>>");
 
                 var apiClient = new HttpClient();
+                //var url = "http://localhost:36134/api/login";
                 var url = "http://phillysnug.apphb.com/api/login";
 
                 //Login to API
@@ -74,12 +74,9 @@ namespace RealWorld.ApiClient
 
         public static ObjectContent CreateJsonObjectContent<T>(T model)
         {
-            var requestMessage = new HttpRequestMessage();
-            return requestMessage.CreateContent(
+            return new ObjectContent<T>(
                 model,
-                MediaTypeHeaderValue.Parse("application/json"),
-                new MediaTypeFormatter[] { new JsonMediaTypeFormatter() },
-                new FormatterSelector());
+                new JsonMediaTypeFormatter());
         }
 
         private static ObjectContent SetupClientCredentials()
